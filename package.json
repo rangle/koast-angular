@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/rangle/koast-angular/issues"
   },
-  "homepage": "https://github.com/rangle/koast-angular"
+  "homepage": "https://github.com/rangle/koast-angular",
+  "dependencies": {
+    "rangle-gulp": "0.0.7"
+  }
 }
