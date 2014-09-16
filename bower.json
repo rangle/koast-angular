@@ -1,19 +1,18 @@
 {
-  "name": "koast",
-  "version": "0.3.0",
-  "homepage": "https://github.com/rangle/koast",
+  "name": "koast-angular",
+  "version": "0.0.0",
+  "homepage": "https://github.com/rangle/koast-angular",
   "authors": [
     "Rangle.io (yuri@rangle.io)"
   ],
-  "description": "Client-side library for Koast.",
+  "description": "Angular library for Koast.",
   "main": "client/koast.js",
   "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
-    "client/bower_components",
+    "bower_components",
     "tmp",
-    "server",
     "examples"
   ],
   "dependencies": {
