@@ -6,7 +6,7 @@
     "Rangle.io (yuri@rangle.io)"
   ],
   "description": "Angular library for Koast.",
-  "main": "client/koast.js",
+  "main": "dist/koast.js",
   "license": "MIT",
   "ignore": [
     "**/.*",
