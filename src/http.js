@@ -1,5 +1,5 @@
-/* global angular */
-
+/* global angular,_ */
+'use strict';
 angular.module('koast.http', [])
 
 .factory('_koastTokenKeeper', ['$log', '$window',
@@ -39,7 +39,7 @@ angular.module('koast.http', [])
     function addTokenHeader() {
       options.headers = options.headers || {};
       if (token) {
-        options.headers['Authorization'] =  'Bearer ' + token;
+        options.headers.Authorization =  'Bearer ' + token;
       }
     }
 

@@ -1,9 +1,9 @@
 /* global angular */
-
+'use strict';
 // Logging with a few extra bells and whistles.
 angular.module('koast.logger', [])
   .factory('_koastLogger', [
-    function() {
+    function () {
 
       var service = {};
       service.levels = {
@@ -15,7 +15,7 @@ angular.module('koast.logger', [])
       };
       var logLevel = 3;
       service.colors = {};
-      service.setLogLevel = function(newLevel) {
+      service.setLogLevel = function (newLevel) {
         logLevel = newLevel;
       };
 
@@ -24,7 +24,7 @@ angular.module('koast.logger', [])
 
         if (options.level && options.level < logLevel) {
           return;
-        };
+        }
 
         var color = options.color || 'black';
         var args = [];
@@ -42,7 +42,8 @@ angular.module('koast.logger', [])
         }
         if (options.symbol) {
           colored.unshift('%c' + options.symbol);
-          args.unshift('color:' + color + ';font-weight:bold;font-size:150%;');
+          args.unshift('color:' + color +
+            ';font-weight:bold;font-size:150%;');
         }
         args.unshift(colored.join(' '));
         args = args.concat(values);
@@ -51,9 +52,9 @@ angular.module('koast.logger', [])
 
       function makeLoggerFunction(options) {
         options.level = service.levels[options.name];
-        return function(groupOptions, args) {
+        return function (groupOptions, args) {
           log(options, groupOptions, args);
-        }
+        };
       }
 
       var logFunctions = {
@@ -94,19 +95,19 @@ angular.module('koast.logger', [])
           };
         }
         logger.options = options;
-        methodNames.forEach(function(methodName) {
-          logger[methodName] = function() {
+        methodNames.forEach(function (methodName) {
+          logger[methodName] = function () {
             var args = arguments;
             return logFunctions[methodName](logger.options, args);
-          }
+          };
         });
 
         return logger;
-      }
+      };
 
       var defaultLogger = service.makeLogger({});
 
-      methodNames.forEach(function(methodName) {
+      methodNames.forEach(function (methodName) {
         service[methodName] = defaultLogger[methodName];
       });
 

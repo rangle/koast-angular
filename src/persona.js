@@ -38,7 +38,7 @@ angular.module('koast-persona', [])
       return deferred.promise;
     }
 
-    // Verifies a persona assertion by 
+    // Verifies a persona assertion by
     function verifyAssertion(assertion) {
       $log.debug('verifyAssertion:');
       var audience = $location.absUrl().split('/').slice(0,3).join('/') + '/';
@@ -68,7 +68,7 @@ angular.module('koast-persona', [])
         });
     }
 
-    /** 
+    /**
      * Initiates sign in with Mozilla's persona. The thing to keep in mind
      * here is that Persona sign up process is non-modal, so we don't really
      * know what is happening there until the user either completes or cancels
@@ -93,7 +93,7 @@ angular.module('koast-persona', [])
     };
 
 
-    /** 
+    /**
      * Initiates sign in with Mozilla's persona. In this case few things should
      * prevent Persona from actually completing the sign out, but we don't
      * really get to know what's going on. We just start the process here and
