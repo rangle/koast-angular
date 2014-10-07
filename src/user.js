@@ -38,8 +38,8 @@ angular.module('koast-user', [
 
     // expects end point to precede with a forward-slash "/"
     service.makeRequestURL = function (endPoint) {
-      if (!endPoint){
-        endPoint = ""
+      if (!endPoint) {
+        endPoint = '';
       }
       return baseUrl + endPoint;
     };
@@ -49,8 +49,10 @@ angular.module('koast-user', [
 ])
 
 // A service that represents the logged in user.
-.factory('_koastUser', ['_koastOauth', '_koastHttp', '_koastLogger', '$log', '$timeout', '$http', '$window', '$q',
-  function (koastOauth, _koastHttp, _koastLogger, $log, $timeout, $http, $window, $q) {
+.factory('_koastUser', ['_koastOauth', '_koastHttp', '_koastLogger', '$log',
+  '$timeout', '$http', '$window', '$q',
+  function (koastOauth, _koastHttp, _koastLogger, $log, $timeout, $http,
+    $window, $q) {
     'use strict';
 
     var log = _koastLogger.makeLogger('koast.user');
@@ -74,7 +76,7 @@ angular.module('koast-user', [
       var delay = user.debug.delay;
       if (delay) {
         $log.debug('Delayng for ' + delay + ' msec.');
-        return $timeout(function() {
+        return $timeout(function () {
           return value;
         }, delay);
       } else {
@@ -140,8 +142,8 @@ angular.module('koast-user', [
 
       // First get the current user data from the server.
       return koastHttp.get(url || '/auth/user')
-        .then(null, function(response) {
-          if (response.status===401) {
+        .then(null, function (response) {
+          if (response.status === 401) {
             return null;
           } else {
             throw response;
@@ -156,7 +158,7 @@ angular.module('koast-user', [
     user.initiateOauthAuthentication = function (provider) {
       koastOauth.initiateAuthentication(provider);
     };
-    
+
     // Posts a logout request.
     user.logout = function (nextUrl) {
       koastHttp.deleteToken();
@@ -175,14 +177,14 @@ angular.module('koast-user', [
     };
 
     // user logs in with local strategy
-    user.loginLocal = function(user) {
+    user.loginLocal = function (user) {
       $log.debug('Login:', user.username);
       var body = {
         username: user.username,
         password: user.password
       };
       return $http.post(koastOauth.makeRequestURL('/auth/login'), body)
-        .then(function(response) {
+        .then(function (response) {
           log.debug('loginLocal:', response);
           return response.data;
         })
@@ -206,22 +208,26 @@ angular.module('koast-user', [
     user.checkUsernameAvailability = function (username) {
       var url = koastOauth.makeRequestURL('/auth/usernameAvailable');
       return $http.get(url, {
-        params: {
-          username: username
-        }
-      })
+          params: {
+            username: username
+          }
+        })
         .then(function (result) {
           return result.data === 'true';
         })
         .then(null, $log.error);
     };
 
-    user.resetPassword = function(email){
-      return $http.post(koastOauth.makeRequestURL('/forgot'), {email: email});
+    user.resetPassword = function (email) {
+      return $http.post(koastOauth.makeRequestURL('/forgot'), {
+        email: email
+      });
     };
 
-    user.setNewPassword = function(newPassword, token){
-      return $http.post(koastOauth.makeRequestURL('/reset/' + token), {password: newPassword});
+    user.setNewPassword = function (newPassword, token) {
+      return $http.post(koastOauth.makeRequestURL('/reset/' + token), {
+        password: newPassword
+      });
     };
 
     // Attaches a registration handler - afunction that will be called when we
@@ -250,7 +256,7 @@ angular.module('koast-user', [
     };
 
     // Returns a promise that resolves when the user is authenticated.
-    user.whenAuthenticated = function() {
+    user.whenAuthenticated = function () {
       return authenticatedDeferred.promise;
     };
 

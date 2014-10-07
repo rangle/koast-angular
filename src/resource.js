@@ -99,7 +99,7 @@ angular.module('koast-resource', ['koast-user'])
     // An auxiliary function to generate the part of the URL that identifies
     // the specific resource.
     function makeResourceIdentifier(template, params) {
-      
+
       if (!params) {
         return '';
       } else {
