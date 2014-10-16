@@ -6,6 +6,8 @@ var expect = chai.expect;
 
 function testMakeRequestUrl(baseUrl) {
 
+
+
   beforeEach(angular.mock.module('koast-user'));
   beforeEach(module(function ($provide) {
 
@@ -64,7 +66,28 @@ function testMakeRequestUrl(baseUrl) {
 
 
 describe('_koastOauth', function () {
+  function localStorageMock() {
+    var keys = {};
 
+    return {
+      setItem: function (key, value) {
+        keys[key] = value || '';
+      },
+      getItem: function (key) {
+        return keys[key];
+      },
+      removeItem: function (key) {
+        delete keys[key];
+      },
+      get length() {
+        return Object.keys(keys).length;
+      },
+      key: function (i) {
+        var aKeys = Object.keys(keys);
+        return aKeys[i] || null;
+      }
+    };
+  }
   var baseUrl = 'http://example.com/foo/bar';
 
   beforeEach(angular.mock.module('koast-user'));
@@ -92,6 +115,7 @@ describe('_koastOauth', function () {
   it('should initiate authentication', function () {
     inject(function (_koastOauth, $window) {
       var someProvider = 'facebook';
+      $window.localStorage = localStorageMock();
       _koastOauth.initiateAuthentication(someProvider);
       $window.location.replace.should.have.been.calledOnce;
       $window.location.replace.should.have

@@ -2,13 +2,12 @@
 
 angular.module('koast-user', [
     'koast.logger',
-    'koast.http',
-    'ui.router'
+    'koast.http'
   ])
   // Abstracts out some OAuth-specific logic.
   .factory('_koastOauth', ['$window', '$location', '$log', '_koastLogger',
-    '$state',
-    function ($window, $location, $log, _koastLogger, $state) {
+
+    function ($window, $location, $log, _koastLogger) {
       'use strict';
       var NEXT_URL_KEY = 'Koast_Post_Auth_Url';
       var service = {};
