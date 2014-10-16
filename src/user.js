@@ -1,58 +1,68 @@
 /* global angular */
 
 angular.module('koast-user', [
-  'koast.logger',
-  'koast.http'
-])
+    'koast.logger',
+    'koast.http',
+    'ui.router'
+  ])
+  // Abstracts out some OAuth-specific logic.
+  .factory('_koastOauth', ['$window', '$location', '$log', '_koastLogger',
+    '$state',
+    function ($window, $location, $log, _koastLogger, $state) {
+      'use strict';
+      var NEXT_URL_KEY = 'Koast_Post_Auth_Url';
+      var service = {};
 
-// Abstracts out some OAuth-specific logic.
-.factory('_koastOauth', ['$window', '$location', '$log', '_koastLogger',
-  function ($window, $location, $log, _koastLogger) {
-    'use strict';
+      var log = _koastLogger;
 
-    var service = {};
-
-    var log = _koastLogger;
-
-    // This is only a default value, the Koast client must set baseUrl via Koast.init()
-    // if the client is served on a different server than that of the API server.
-    var baseUrl = $location.absUrl().split('/').slice(0, 3).join('/');
+      // This is only a default value, the Koast client must set baseUrl via Koast.init()
+      // if the client is served on a different server than that of the API server.
+      var baseUrl = $location.absUrl().split('/').slice(0, 3).join('/');
 
 
-    // Makes a URL for the OAuth provider.
-    function makeAuthUrl(provider, nextUrl) {
-      return baseUrl + '/auth/' + provider + '?next=' +
-        encodeURIComponent(nextUrl);
-    }
-
-    // Sends the user to the provider's OAuth login page.
-    service.initiateAuthentication = function (provider) {
-      var newUrl = makeAuthUrl(provider, $location.absUrl());
-      $window.location.replace(newUrl);
-    };
-
-    // Sets a new base URL
-    service.setBaseUrl = function (newBaseUrl) {
-      baseUrl = newBaseUrl;
-    };
-
-    // expects end point to precede with a forward-slash "/"
-    service.makeRequestURL = function (endPoint) {
-      if (!endPoint) {
-        endPoint = '';
+      // Makes a URL for the OAuth provider.
+      function makeAuthUrl(provider, nextUrl) {
+        return baseUrl + '/auth/' + provider + '?next=' +
+          encodeURIComponent(nextUrl);
       }
-      return baseUrl + endPoint;
-    };
+      service.setNextUrl = function (state) {
+        $window.localStorage.setItem(NEXT_URL_KEY, state);
+      };
+      service.clearNextUrl = function () {
+        $window.localStorage.removeItem(NEXT_URL_KEY);
+      };
+      service.getNextUrl = function () {
+        return $window.localStorage.getItem(NEXT_URL_KEY);
+      };
+      // Sends the user to the provider's OAuth login page.
+      service.initiateAuthentication = function (provider, redirectUrl) {
+        service.setNextUrl(redirectUrl);
+        var newUrl = makeAuthUrl(provider, $location.absUrl());
+        $window.location.replace(newUrl);
+      };
 
-    return service;
-  }
-])
+      // Sets a new base URL
+      service.setBaseUrl = function (newBaseUrl) {
+        baseUrl = newBaseUrl;
+      };
+
+      // expects end point to precede with a forward-slash "/"
+      service.makeRequestURL = function (endPoint) {
+        if (!endPoint) {
+          endPoint = '';
+        }
+        return baseUrl + endPoint;
+      };
+
+      return service;
+    }
+  ])
 
 // A service that represents the logged in user.
 .factory('_koastUser', ['_koastOauth', '_koastHttp', '_koastLogger', '$log',
-  '$timeout', '$http', '$window', '$q',
+  '$timeout', '$http', '$window', '$q', '$location',
   function (koastOauth, _koastHttp, _koastLogger, $log, $timeout, $http,
-    $window, $q) {
+    $window, $q, $location) {
     'use strict';
 
     var log = _koastLogger.makeLogger('koast.user');
@@ -99,6 +109,9 @@ angular.module('koast-user', [
         // Figure out if the user is signed in. If so, update user.data and
         // user.meta.
         if (responseBody.isAuthenticated) {
+          log.info('response body is', responseBody);
+          log.info('response body data is', responseBody.data);
+          log.info('response body meta is', responseBody.meta);
           user.data = responseBody.data;
           user.meta = responseBody.meta;
           if (user.meta.token) {
@@ -134,10 +147,19 @@ angular.module('koast-user', [
       }
     }
 
-    // Retrieves user's data from the server. This means we need to make an
-    // extra trip to the server, but the benefit is that this method works
-    // across a range of authentication setups and we are not limited by
-    // cookie size.
+    function postAuthRedirect() {
+        var nextUrl = koastOauth.getNextUrl();
+        koastOauth.clearNextUrl();
+        if (nextUrl) {
+          $location.url(nextUrl);
+        } else {
+          return {};
+        }
+      }
+      // Retrieves user's data from the server. This means we need to make an
+      // extra trip to the server, but the benefit is that this method works
+      // across a range of authentication setups and we are not limited by
+      // cookie size.
     function getUserData(url) {
 
       // First get the current user data from the server.
@@ -154,9 +176,18 @@ angular.module('koast-user', [
         .then(callRegistrationHandler);
     }
 
+    user.getUserData = getUserData;
+
+    user.saveToken = function (token, expires) {
+      koastHttp.saveToken({
+        token: token,
+        expires: expires
+      });
+    };
     // Initiates the login process.
-    user.initiateOauthAuthentication = function (provider) {
-      koastOauth.initiateAuthentication(provider);
+
+    user.initiateOauthAuthentication = function (provider, redirectState) {
+      koastOauth.initiateAuthentication(provider, redirectState);
     };
 
     // Posts a logout request.
@@ -193,8 +224,13 @@ angular.module('koast-user', [
 
     // Registers the user (social login)
     user.registerSocial = function (data) {
-      return $http.put(koastOauth.makeRequestURL('/auth/user'), data)
-        .then(function () {
+
+
+      return koastHttp.put('/auth/user', data)
+        .then(function (response) {
+          if (response.meta.token) {
+            user.saveToken(response.meta.token, response.meta.expires);
+          }
           return getUserData();
         });
     };
@@ -206,16 +242,19 @@ angular.module('koast-user', [
 
     // Checks if a username is available.
     user.checkUsernameAvailability = function (username) {
-      var url = koastOauth.makeRequestURL('/auth/usernameAvailable');
-      return $http.get(url, {
+      var url = '/auth/usernameAvailable'; //koastOauth.makeRequestURL('/auth/usernameAvailable');
+      return koastHttp.get(url, {
           params: {
             username: username
           }
         })
         .then(function (result) {
-          return result.data === 'true';
+
+          return result.data === true;
         })
-        .then(null, $log.error);
+        .then(null, function (x) {
+
+        });
     };
 
     user.resetPassword = function (email) {
@@ -246,13 +285,44 @@ angular.module('koast-user', [
 
     user.whenStatusIsKnown = user.getStatusPromise;
 
+
+
+    user.refreshToken = function (url, initToken) {
+      return koastHttp.get(url || '/auth/token/refresh').then(function (
+        response) {
+        if (response.token) {
+          return response;
+        } else {
+          return initToken;
+        }
+      });
+
+    }
+    user.checkForToken = function () {
+      var queryToken = $location.search().redirectToken;
+      if (queryToken) {
+        user.saveToken(queryToken);
+        return user
+          .refreshToken(null, queryToken)
+          .then(function (data) {
+
+            return user.saveToken(data.token, data.expires);
+
+          });
+      } else {
+        return $q.when({});
+      }
+    };
     // Initializes the user service.
     user.init = function (options) {
       options.debug = options.debug || {};
       user.debug = options.debug;
-      koastHttp.setOptions(options);
+      //koastHttp.setOptions(options);
       koastOauth.setBaseUrl(options.baseUrl);
-      return user.getStatusPromise();
+      return user.checkForToken()
+        .then(user.getStatusPromise)
+        .then(postAuthRedirect);
+
     };
 
     // Returns a promise that resolves when the user is authenticated.

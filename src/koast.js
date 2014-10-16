@@ -3,8 +3,8 @@
 angular.module('koast', ['koast-user', 'koast-resource'])
 
 // The public service for use by the developer.
-.factory('koast', ['_koastUser', '_koastResourceGetter', '$log',
-  function (koastUser, koastResourceGetter, $log) {
+.factory('koast', ['_koastUser', '_koastResourceGetter', '$log', '_koastHttp',
+  function (koastUser, koastResourceGetter, $log, _koastHttp) {
     'use strict';
     var service = {};
     var resourceGetterMethodsToCopy = [
@@ -25,7 +25,10 @@ angular.module('koast', ['koast-user', 'koast-resource'])
 
     service.init = function (options) {
       $log.info('Initializing koast.');
+      _koastHttp.setOptions(options);
       koastUser.init(options);
+      koastResourceGetter.init(options);
+
     };
 
     return service;

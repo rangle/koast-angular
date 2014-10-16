@@ -3,19 +3,20 @@
 angular.module('koast.http', [])
 
 .factory('_koastTokenKeeper', ['$log', '$window',
-  function($log, $window) {
+  function ($log, $window) {
     var TOKEN_KEY = 'KoastToken';
     var service = {};
-    service.saveToken = function(params) {
-      var tokenValue = params.token;
+    service.saveToken = function (params) {
+      var tokenValue = params.token || params;
       $window.localStorage.setItem(TOKEN_KEY, tokenValue);
     };
-    service.loadToken = function() {
+    service.loadToken = function () {
       return $window.localStorage.getItem(TOKEN_KEY);
     };
-    service.clear = function() {
+    service.clear = function () {
       return $window.localStorage.removeItem(TOKEN_KEY);
     };
+
     return service;
   }
 ])
@@ -32,15 +33,17 @@ angular.module('koast.http', [])
 
     log.debug('Loaded token', token);
 
-    service.setOptions = function(newOptions) {
+    service.setOptions = function (newOptions) {
       options = newOptions;
     };
 
     function addTokenHeader() {
+
       options.headers = options.headers || {};
       if (token) {
-        options.headers.Authorization =  'Bearer ' + token;
+        options.headers.Authorization = 'Bearer ' + token;
       }
+
     }
 
     service.saveToken = function (tokenData) {
@@ -66,30 +69,59 @@ angular.module('koast.http', [])
         //     throw 'offline';
         //   }
         // })
-        .then(function() {
+        .then(function () {
           addTokenHeader();
         })
         .then(caller)
-        .then(function(response) {
+        .then(function (response) {
           service.isReachable = true;
-          return response.data? response.data: response;
+          return response.data ? response.data : response;
         })
-        .then(null, function(err) {
+        .then(null, function (err) {
           log.warn(err.data || err);
           throw err;
         });
-        // .then(null, function(error) {
-        //   error = checkErrors(error);
-        //   throw error.data? error.data: error;
-        // });
+      // .then(null, function(error) {
+      //   error = checkErrors(error);
+      //   throw error.data? error.data: error;
+      // });
     }
 
-    service.get = function(url, params) {
-      return makeServerRequest(function() {
-        var config = _.cloneDeep(options);
-        config.url = options.baseUrl + url;
-        config.params = params;
-        config.method = 'GET';
+    service.post = function (url, data, inputOptions) {
+      inputOptions = _.cloneDeep(inputOptions) || options;
+      inputOptions.baseUrl = options.baseUrl || '';
+      inputOptions.method = 'POST';
+      inputOptions.data = data;
+      return makeServerRequest(function () {
+        var config = _.cloneDeep(inputOptions);
+        config.url = inputOptions.baseUrl + url;
+        config.params = inputOptions.params;
+        return $http(config);
+      });
+    }
+
+    service.put = function (url, data, inputOptions) {
+      inputOptions = _.cloneDeep(inputOptions) || options;
+      inputOptions.baseUrl = options.baseUrl || '';
+      inputOptions.method = 'PUT';
+      inputOptions.data = data;
+      return makeServerRequest(function () {
+        var config = _.cloneDeep(inputOptions);
+        config.url = inputOptions.baseUrl + url;
+        config.params = inputOptions.params;
+
+        return $http(config);
+      });
+    };
+    service.get = function (url, inputOptions) {
+      inputOptions = _.cloneDeep(inputOptions) || options;
+      inputOptions.baseUrl = options.baseUrl || '';
+      inputOptions.method = 'GET';
+      return makeServerRequest(function () {
+        var config = _.cloneDeep(inputOptions);
+        config.url = inputOptions.baseUrl + url;
+        config.params = inputOptions.params;
+
         return $http(config);
       });
     };

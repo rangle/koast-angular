@@ -1,21 +1,22 @@
-/* global angular */
-
+/* global angular,_ */
+'use strict';
 angular.module('koast.http', [])
 
 .factory('_koastTokenKeeper', ['$log', '$window',
-  function($log, $window) {
+  function ($log, $window) {
     var TOKEN_KEY = 'KoastToken';
     var service = {};
-    service.saveToken = function(params) {
-      var tokenValue = params.token;
+    service.saveToken = function (params) {
+      var tokenValue = params.token || params;
       $window.localStorage.setItem(TOKEN_KEY, tokenValue);
     };
-    service.loadToken = function() {
+    service.loadToken = function () {
       return $window.localStorage.getItem(TOKEN_KEY);
     };
-    service.clear = function() {
+    service.clear = function () {
       return $window.localStorage.removeItem(TOKEN_KEY);
     };
+
     return service;
   }
 ])
@@ -32,15 +33,17 @@ angular.module('koast.http', [])
 
     log.debug('Loaded token', token);
 
-    service.setOptions = function(newOptions) {
+    service.setOptions = function (newOptions) {
       options = newOptions;
     };
 
     function addTokenHeader() {
+
       options.headers = options.headers || {};
       if (token) {
-        options.headers['Authorization'] =  'Bearer ' + token;
+        options.headers.Authorization = 'Bearer ' + token;
       }
+
     }
 
     service.saveToken = function (tokenData) {
@@ -66,30 +69,59 @@ angular.module('koast.http', [])
         //     throw 'offline';
         //   }
         // })
-        .then(function() {
+        .then(function () {
           addTokenHeader();
         })
         .then(caller)
-        .then(function(response) {
+        .then(function (response) {
           service.isReachable = true;
-          return response.data? response.data: response;
+          return response.data ? response.data : response;
         })
-        .then(null, function(err) {
+        .then(null, function (err) {
           log.warn(err.data || err);
           throw err;
         });
-        // .then(null, function(error) {
-        //   error = checkErrors(error);
-        //   throw error.data? error.data: error;
-        // });
+      // .then(null, function(error) {
+      //   error = checkErrors(error);
+      //   throw error.data? error.data: error;
+      // });
     }
 
-    service.get = function(url, params) {
-      return makeServerRequest(function() {
-        var config = _.cloneDeep(options);
-        config.url = options.baseUrl + url;
-        config.params = params;
-        config.method = 'GET';
+    service.post = function (url, data, inputOptions) {
+      inputOptions = _.cloneDeep(inputOptions) || options;
+      inputOptions.baseUrl = options.baseUrl || '';
+      inputOptions.method = 'POST';
+      inputOptions.data = data;
+      return makeServerRequest(function () {
+        var config = _.cloneDeep(inputOptions);
+        config.url = inputOptions.baseUrl + url;
+        config.params = inputOptions.params;
+        return $http(config);
+      });
+    }
+
+    service.put = function (url, data, inputOptions) {
+      inputOptions = _.cloneDeep(inputOptions) || options;
+      inputOptions.baseUrl = options.baseUrl || '';
+      inputOptions.method = 'PUT';
+      inputOptions.data = data;
+      return makeServerRequest(function () {
+        var config = _.cloneDeep(inputOptions);
+        config.url = inputOptions.baseUrl + url;
+        config.params = inputOptions.params;
+
+        return $http(config);
+      });
+    };
+    service.get = function (url, inputOptions) {
+      inputOptions = _.cloneDeep(inputOptions) || options;
+      inputOptions.baseUrl = options.baseUrl || '';
+      inputOptions.method = 'GET';
+      return makeServerRequest(function () {
+        var config = _.cloneDeep(inputOptions);
+        config.url = inputOptions.baseUrl + url;
+        config.params = inputOptions.params;
+
         return $http(config);
       });
     };
@@ -103,8 +135,8 @@ angular.module('koast.http', [])
 angular.module('koast', ['koast-user', 'koast-resource'])
 
 // The public service for use by the developer.
-.factory('koast', ['_koastUser', '_koastResourceGetter', '$log',
-  function (koastUser, koastResourceGetter, $log) {
+.factory('koast', ['_koastUser', '_koastResourceGetter', '$log', '_koastHttp',
+  function (koastUser, koastResourceGetter, $log, _koastHttp) {
     'use strict';
     var service = {};
     var resourceGetterMethodsToCopy = [
@@ -125,18 +157,22 @@ angular.module('koast', ['koast-user', 'koast-resource'])
 
     service.init = function (options) {
       $log.info('Initializing koast.');
+      _koastHttp.setOptions(options);
       koastUser.init(options);
+      koastResourceGetter.init(options);
+
     };
 
     return service;
   }
 ]);
-/* global angular */
 
+/* global angular */
+'use strict';
 // Logging with a few extra bells and whistles.
 angular.module('koast.logger', [])
   .factory('_koastLogger', [
-    function() {
+    function () {
 
       var service = {};
       service.levels = {
@@ -148,7 +184,7 @@ angular.module('koast.logger', [])
       };
       var logLevel = 3;
       service.colors = {};
-      service.setLogLevel = function(newLevel) {
+      service.setLogLevel = function (newLevel) {
         logLevel = newLevel;
       };
 
@@ -157,7 +193,7 @@ angular.module('koast.logger', [])
 
         if (options.level && options.level < logLevel) {
           return;
-        };
+        }
 
         var color = options.color || 'black';
         var args = [];
@@ -175,7 +211,8 @@ angular.module('koast.logger', [])
         }
         if (options.symbol) {
           colored.unshift('%c' + options.symbol);
-          args.unshift('color:' + color + ';font-weight:bold;font-size:150%;');
+          args.unshift('color:' + color +
+            ';font-weight:bold;font-size:150%;');
         }
         args.unshift(colored.join(' '));
         args = args.concat(values);
@@ -184,9 +221,9 @@ angular.module('koast.logger', [])
 
       function makeLoggerFunction(options) {
         options.level = service.levels[options.name];
-        return function(groupOptions, args) {
+        return function (groupOptions, args) {
           log(options, groupOptions, args);
-        }
+        };
       }
 
       var logFunctions = {
@@ -227,25 +264,26 @@ angular.module('koast.logger', [])
           };
         }
         logger.options = options;
-        methodNames.forEach(function(methodName) {
-          logger[methodName] = function() {
+        methodNames.forEach(function (methodName) {
+          logger[methodName] = function () {
             var args = arguments;
             return logFunctions[methodName](logger.options, args);
-          }
+          };
         });
 
         return logger;
-      }
+      };
 
       var defaultLogger = service.makeLogger({});
 
-      methodNames.forEach(function(methodName) {
+      methodNames.forEach(function (methodName) {
         service[methodName] = defaultLogger[methodName];
       });
 
       return service;
     }
   ]);
+
 /* global angular */
 
 angular.module('koast-persona', [])
@@ -286,7 +324,7 @@ angular.module('koast-persona', [])
       return deferred.promise;
     }
 
-    // Verifies a persona assertion by 
+    // Verifies a persona assertion by
     function verifyAssertion(assertion) {
       $log.debug('verifyAssertion:');
       var audience = $location.absUrl().split('/').slice(0,3).join('/') + '/';
@@ -316,7 +354,7 @@ angular.module('koast-persona', [])
         });
     }
 
-    /** 
+    /**
      * Initiates sign in with Mozilla's persona. The thing to keep in mind
      * here is that Persona sign up process is non-modal, so we don't really
      * know what is happening there until the user either completes or cancels
@@ -341,7 +379,7 @@ angular.module('koast-persona', [])
     };
 
 
-    /** 
+    /**
      * Initiates sign in with Mozilla's persona. In this case few things should
      * prevent Persona from actually completing the sign out, but we don't
      * really get to know what's going on. We just start the process here and
@@ -408,12 +446,13 @@ angular.module('koast-persona', [])
     return service;
   }
 ]);
+
 /* global angular, _ */
 
 angular.module('koast-resource', ['koast-user'])
 
 .factory('_KoastServerHelper', ['_koastUser',
-  function(user) {
+  function (user) {
     'use strict';
     var service = {};
     service.addAuthHeaders = function (headers) {
@@ -424,7 +463,8 @@ angular.module('koast-resource', ['koast-user'])
       }
     };
     return service;
-  }])
+  }
+])
 
 // A "private" service providing a constructor for resources.
 .factory('_KoastResource', ['_KoastServerHelper', '$q', '$http', '$log',
@@ -437,7 +477,9 @@ angular.module('koast-resource', ['koast-user'])
       if (options.useEnvelope) {
         data = result.data;
         if (!data) {
-          throw new Error('Client expects an envelope, but server did not send it properly.');
+          throw new Error(
+            'Client expects an envelope, but server did not send it properly.'
+          );
         }
       } else {
         data = result;
@@ -468,7 +510,9 @@ angular.module('koast-resource', ['koast-user'])
       var url = this._endpoint.makeGetUrl(this);
       var headers = {};
       KoastServerHelper.addAuthHeaders(headers);
-      return $http.put(url, this, {headers: headers});
+      return $http.put(url, this, {
+        headers: headers
+      });
     };
 
     // A method for deleting the resource
@@ -478,7 +522,9 @@ angular.module('koast-resource', ['koast-user'])
       $log.debug('delete url:', url);
       var headers = {};
       KoastServerHelper.addAuthHeaders(headers);
-      return $http.delete(url, {headers: headers});
+      return $http.delete(url, {
+        headers: headers
+      });
     };
 
     return Resource;
@@ -509,13 +555,13 @@ angular.module('koast-resource', ['koast-user'])
     // An auxiliary function to generate the part of the URL that identifies
     // the specific resource.
     function makeResourceIdentifier(template, params) {
-      
+
       if (!params) {
         return '';
       } else {
         return template.replace(/:([-_a-zA-Z]*)/g, function (_, paramName) {
           var param = params[paramName];
-          var paramIsDefined = param || (param===0); // Accept 0 as "defined".
+          var paramIsDefined = param || (param === 0); // Accept 0 as "defined".
           if (!paramIsDefined) {
             throw new Error('Missing parameter: ' + paramName);
           }
@@ -539,19 +585,23 @@ angular.module('koast-resource', ['koast-user'])
 
 // A service that offers high level methods for interacting with resources.
 .factory('_koastResourceGetter', ['_KoastResource', '_KoastServerHelper',
-  '_KoastEndpoint', '$http', '$q', '$log','_koastHttp',
-  function (KoastResource, KoastServerHelper, KoastEndpoint, $http, $q, $log,_koastHttp) {
+  '_KoastEndpoint', '$http', '$q', '$log', '_koastHttp',
+  function (KoastResource, KoastServerHelper, KoastEndpoint, $http, $q,
+    $log, _koastHttp) {
     'use strict';
     var service = {};
     var prefixes = {};
     var endpoints = {};
+    var options = {};
+
+
 
     // Converts an array of raw results coming from the server into an array
     // of resources. If options specify a singular resource, then we just
     // return that resource.
     function convertResultsToResources(results, options) {
 
-      var resources = _.map(results, function(rawResult) {
+      var resources = _.map(results, function (rawResult) {
         return new KoastResource(options.endpoint, rawResult, options);
       });
 
@@ -631,8 +681,8 @@ angular.module('koast-resource', ['koast-user'])
       KoastServerHelper.addAuthHeaders(headers);
 
       $http.post(endpoint.makePostUrl(), data, {
-        headers: headers
-      })
+          headers: headers
+        })
         .success(function (result) {
           deferred.resolve(result);
         })
@@ -666,15 +716,21 @@ angular.module('koast-resource', ['koast-user'])
       var serverHandle = options.server || '_';
       var prefix = prefixes[serverHandle];
       if (!prefix) {
-        throw new Error('No URI prefix defined for server ' + serverHandle);
+        throw new Error('No URI prefix defined for server ' +
+          serverHandle);
       }
       var endpoint = new KoastEndpoint(prefix, handle, template, options);
       if (endpoints[handle]) {
-        throw new Error('An endpoint with this handle was already defined: ' +
+        throw new Error(
+          'An endpoint with this handle was already defined: ' +
           handle);
       }
       endpoints[handle] = endpoint;
     };
+
+    service.init = function (initOptions) {
+      options = initOptions;
+    }
 
     return service;
   }
@@ -683,56 +739,68 @@ angular.module('koast-resource', ['koast-user'])
 /* global angular */
 
 angular.module('koast-user', [
-  'koast.logger',
-  'koast.http'
-])
+    'koast.logger',
+    'koast.http',
+    'ui.router'
+  ])
+  // Abstracts out some OAuth-specific logic.
+  .factory('_koastOauth', ['$window', '$location', '$log', '_koastLogger',
+    '$state',
+    function ($window, $location, $log, _koastLogger, $state) {
+      'use strict';
+      var NEXT_URL_KEY = 'Koast_Post_Auth_Url';
+      var service = {};
 
-// Abstracts out some OAuth-specific logic.
-.factory('_koastOauth', ['$window', '$location', '$log', '_koastLogger',
-  function ($window, $location, $log, _koastLogger) {
-    'use strict';
+      var log = _koastLogger;
 
-    var service = {};
-
-    var log = _koastLogger;
-
-    // This is only a default value, the Koast client must set baseUrl via Koast.init()
-    // if the client is served on a different server than that of the API server.
-    var baseUrl = $location.absUrl().split('/').slice(0, 3).join('/');
+      // This is only a default value, the Koast client must set baseUrl via Koast.init()
+      // if the client is served on a different server than that of the API server.
+      var baseUrl = $location.absUrl().split('/').slice(0, 3).join('/');
 
 
-    // Makes a URL for the OAuth provider.
-    function makeAuthUrl(provider, nextUrl) {
-      return baseUrl + '/auth/' + provider + '?next=' +
-        encodeURIComponent(nextUrl);
-    }
-
-    // Sends the user to the provider's OAuth login page.
-    service.initiateAuthentication = function (provider) {
-      var newUrl = makeAuthUrl(provider, $location.absUrl());
-      $window.location.replace(newUrl);
-    };
-
-    // Sets a new base URL
-    service.setBaseUrl = function (newBaseUrl) {
-      baseUrl = newBaseUrl;
-    };
-
-    // expects end point to precede with a forward-slash "/"
-    service.makeRequestURL = function (endPoint) {
-      if (!endPoint){
-        endPoint = ""
+      // Makes a URL for the OAuth provider.
+      function makeAuthUrl(provider, nextUrl) {
+        return baseUrl + '/auth/' + provider + '?next=' +
+          encodeURIComponent(nextUrl);
       }
-      return baseUrl + endPoint;
-    };
+      service.setNextUrl = function (state) {
+        $window.localStorage.setItem(NEXT_URL_KEY, state);
+      };
+      service.clearNextUrl = function () {
+        $window.localStorage.removeItem(NEXT_URL_KEY);
+      };
+      service.getNextUrl = function () {
+        return $window.localStorage.getItem(NEXT_URL_KEY);
+      };
+      // Sends the user to the provider's OAuth login page.
+      service.initiateAuthentication = function (provider, redirectUrl) {
+        service.setNextUrl(redirectUrl);
+        var newUrl = makeAuthUrl(provider, $location.absUrl());
+        $window.location.replace(newUrl);
+      };
 
-    return service;
-  }
-])
+      // Sets a new base URL
+      service.setBaseUrl = function (newBaseUrl) {
+        baseUrl = newBaseUrl;
+      };
+
+      // expects end point to precede with a forward-slash "/"
+      service.makeRequestURL = function (endPoint) {
+        if (!endPoint) {
+          endPoint = '';
+        }
+        return baseUrl + endPoint;
+      };
+
+      return service;
+    }
+  ])
 
 // A service that represents the logged in user.
-.factory('_koastUser', ['_koastOauth', '_koastHttp', '_koastLogger', '$log', '$timeout', '$http', '$window', '$q',
-  function (koastOauth, _koastHttp, _koastLogger, $log, $timeout, $http, $window, $q) {
+.factory('_koastUser', ['_koastOauth', '_koastHttp', '_koastLogger', '$log',
+  '$timeout', '$http', '$window', '$q', '$location',
+  function (koastOauth, _koastHttp, _koastLogger, $log, $timeout, $http,
+    $window, $q, $location) {
     'use strict';
 
     var log = _koastLogger.makeLogger('koast.user');
@@ -756,7 +824,7 @@ angular.module('koast-user', [
       var delay = user.debug.delay;
       if (delay) {
         $log.debug('Delayng for ' + delay + ' msec.');
-        return $timeout(function() {
+        return $timeout(function () {
           return value;
         }, delay);
       } else {
@@ -767,7 +835,6 @@ angular.module('koast-user', [
     // Sets the user's data and meta data.
     // Returns true if the user is authenticated.
     function setUser(responseBody) {
-
       var valid = responseBody && responseBody.data;
       var newUser;
       log.debug('Setting the user based on', responseBody);
@@ -780,6 +847,9 @@ angular.module('koast-user', [
         // Figure out if the user is signed in. If so, update user.data and
         // user.meta.
         if (responseBody.isAuthenticated) {
+          log.info('response body is', responseBody);
+          log.info('response body data is', responseBody.data);
+          log.info('response body meta is', responseBody.meta);
           user.data = responseBody.data;
           user.meta = responseBody.meta;
           if (user.meta.token) {
@@ -815,16 +885,25 @@ angular.module('koast-user', [
       }
     }
 
-    // Retrieves user's data from the server. This means we need to make an
-    // extra trip to the server, but the benefit is that this method works
-    // across a range of authentication setups and we are not limited by
-    // cookie size.
+    function postAuthRedirect() {
+        var nextUrl = koastOauth.getNextUrl();
+        koastOauth.clearNextUrl();
+        if (nextUrl) {
+          $location.url(nextUrl);
+        } else {
+          return {};
+        }
+      }
+      // Retrieves user's data from the server. This means we need to make an
+      // extra trip to the server, but the benefit is that this method works
+      // across a range of authentication setups and we are not limited by
+      // cookie size.
     function getUserData(url) {
 
       // First get the current user data from the server.
       return koastHttp.get(url || '/auth/user')
-        .then(null, function(response) {
-          if (response.status===401) {
+        .then(null, function (response) {
+          if (response.status === 401) {
             return null;
           } else {
             throw response;
@@ -835,11 +914,20 @@ angular.module('koast-user', [
         .then(callRegistrationHandler);
     }
 
-    // Initiates the login process.
-    user.initiateOauthAuthentication = function (provider) {
-      koastOauth.initiateAuthentication(provider);
+    user.getUserData = getUserData;
+
+    user.saveToken = function (token, expires) {
+      koastHttp.saveToken({
+        token: token,
+        expires: expires
+      });
     };
-    
+    // Initiates the login process.
+
+    user.initiateOauthAuthentication = function (provider, redirectState) {
+      koastOauth.initiateAuthentication(provider, redirectState);
+    };
+
     // Posts a logout request.
     user.logout = function (nextUrl) {
       koastHttp.deleteToken();
@@ -858,14 +946,14 @@ angular.module('koast-user', [
     };
 
     // user logs in with local strategy
-    user.loginLocal = function(user) {
+    user.loginLocal = function (user) {
       $log.debug('Login:', user.username);
       var body = {
         username: user.username,
         password: user.password
       };
       return $http.post(koastOauth.makeRequestURL('/auth/login'), body)
-        .then(function(response) {
+        .then(function (response) {
           log.debug('loginLocal:', response);
           return response.data;
         })
@@ -874,8 +962,13 @@ angular.module('koast-user', [
 
     // Registers the user (social login)
     user.registerSocial = function (data) {
-      return $http.put(koastOauth.makeRequestURL('/auth/user'), data)
-        .then(function () {
+
+
+      return koastHttp.put('/auth/user', data)
+        .then(function (response) {
+          if (response.meta.token) {
+            user.saveToken(response.meta.token, response.meta.expires);
+          }
           return getUserData();
         });
     };
@@ -887,24 +980,31 @@ angular.module('koast-user', [
 
     // Checks if a username is available.
     user.checkUsernameAvailability = function (username) {
-      var url = koastOauth.makeRequestURL('/auth/usernameAvailable');
-      return $http.get(url, {
-        params: {
-          username: username
-        }
-      })
-        .then(function (result) {
-          return result.data === 'true';
+      var url = '/auth/usernameAvailable'; //koastOauth.makeRequestURL('/auth/usernameAvailable');
+      return koastHttp.get(url, {
+          params: {
+            username: username
+          }
         })
-        .then(null, $log.error);
+        .then(function (result) {
+
+          return result.data === true;
+        })
+        .then(null, function (x) {
+
+        });
     };
 
-    user.resetPassword = function(email){
-      return $http.post(koastOauth.makeRequestURL('/forgot'), {email: email});
+    user.resetPassword = function (email) {
+      return $http.post(koastOauth.makeRequestURL('/forgot'), {
+        email: email
+      });
     };
 
-    user.setNewPassword = function(newPassword, token){
-      return $http.post(koastOauth.makeRequestURL('/reset/' + token), {password: newPassword});
+    user.setNewPassword = function (newPassword, token) {
+      return $http.post(koastOauth.makeRequestURL('/reset/' + token), {
+        password: newPassword
+      });
     };
 
     // Attaches a registration handler - afunction that will be called when we
@@ -923,17 +1023,48 @@ angular.module('koast-user', [
 
     user.whenStatusIsKnown = user.getStatusPromise;
 
+
+
+    user.refreshToken = function (url, initToken) {
+      return koastHttp.get(url || '/auth/token/refresh').then(function (
+        response) {
+        if (response.token) {
+          return response;
+        } else {
+          return initToken;
+        }
+      });
+
+    }
+    user.checkForToken = function () {
+      var queryToken = $location.search().redirectToken;
+      if (queryToken) {
+        user.saveToken(queryToken);
+        return user
+          .refreshToken(null, queryToken)
+          .then(function (data) {
+
+            return user.saveToken(data.token, data.expires);
+
+          });
+      } else {
+        return $q.when({});
+      }
+    };
     // Initializes the user service.
     user.init = function (options) {
       options.debug = options.debug || {};
       user.debug = options.debug;
-      koastHttp.setOptions(options);
+      //koastHttp.setOptions(options);
       koastOauth.setBaseUrl(options.baseUrl);
-      return user.getStatusPromise();
+      return user.checkForToken()
+        .then(user.getStatusPromise)
+        .then(postAuthRedirect);
+
     };
 
     // Returns a promise that resolves when the user is authenticated.
-    user.whenAuthenticated = function() {
+    user.whenAuthenticated = function () {
       return authenticatedDeferred.promise;
     };
 
