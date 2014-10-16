@@ -3,7 +3,7 @@
 angular.module('koast-resource', ['koast-user'])
 
 .factory('_KoastServerHelper', ['_koastUser',
-  function(user) {
+  function (user) {
     'use strict';
     var service = {};
     service.addAuthHeaders = function (headers) {
@@ -14,7 +14,8 @@ angular.module('koast-resource', ['koast-user'])
       }
     };
     return service;
-  }])
+  }
+])
 
 // A "private" service providing a constructor for resources.
 .factory('_KoastResource', ['_KoastServerHelper', '$q', '$http', '$log',
@@ -27,7 +28,9 @@ angular.module('koast-resource', ['koast-user'])
       if (options.useEnvelope) {
         data = result.data;
         if (!data) {
-          throw new Error('Client expects an envelope, but server did not send it properly.');
+          throw new Error(
+            'Client expects an envelope, but server did not send it properly.'
+          );
         }
       } else {
         data = result;
@@ -58,7 +61,9 @@ angular.module('koast-resource', ['koast-user'])
       var url = this._endpoint.makeGetUrl(this);
       var headers = {};
       KoastServerHelper.addAuthHeaders(headers);
-      return $http.put(url, this, {headers: headers});
+      return $http.put(url, this, {
+        headers: headers
+      });
     };
 
     // A method for deleting the resource
@@ -68,7 +73,9 @@ angular.module('koast-resource', ['koast-user'])
       $log.debug('delete url:', url);
       var headers = {};
       KoastServerHelper.addAuthHeaders(headers);
-      return $http.delete(url, {headers: headers});
+      return $http.delete(url, {
+        headers: headers
+      });
     };
 
     return Resource;
@@ -105,7 +112,7 @@ angular.module('koast-resource', ['koast-user'])
       } else {
         return template.replace(/:([-_a-zA-Z]*)/g, function (_, paramName) {
           var param = params[paramName];
-          var paramIsDefined = param || (param===0); // Accept 0 as "defined".
+          var paramIsDefined = param || (param === 0); // Accept 0 as "defined".
           if (!paramIsDefined) {
             throw new Error('Missing parameter: ' + paramName);
           }
@@ -129,19 +136,23 @@ angular.module('koast-resource', ['koast-user'])
 
 // A service that offers high level methods for interacting with resources.
 .factory('_koastResourceGetter', ['_KoastResource', '_KoastServerHelper',
-  '_KoastEndpoint', '$http', '$q', '$log','_koastHttp',
-  function (KoastResource, KoastServerHelper, KoastEndpoint, $http, $q, $log,_koastHttp) {
+  '_KoastEndpoint', '$http', '$q', '$log', '_koastHttp',
+  function (KoastResource, KoastServerHelper, KoastEndpoint, $http, $q,
+    $log, _koastHttp) {
     'use strict';
     var service = {};
     var prefixes = {};
     var endpoints = {};
+    var options = {};
+
+
 
     // Converts an array of raw results coming from the server into an array
     // of resources. If options specify a singular resource, then we just
     // return that resource.
     function convertResultsToResources(results, options) {
 
-      var resources = _.map(results, function(rawResult) {
+      var resources = _.map(results, function (rawResult) {
         return new KoastResource(options.endpoint, rawResult, options);
       });
 
@@ -221,8 +232,8 @@ angular.module('koast-resource', ['koast-user'])
       KoastServerHelper.addAuthHeaders(headers);
 
       $http.post(endpoint.makePostUrl(), data, {
-        headers: headers
-      })
+          headers: headers
+        })
         .success(function (result) {
           deferred.resolve(result);
         })
@@ -256,15 +267,21 @@ angular.module('koast-resource', ['koast-user'])
       var serverHandle = options.server || '_';
       var prefix = prefixes[serverHandle];
       if (!prefix) {
-        throw new Error('No URI prefix defined for server ' + serverHandle);
+        throw new Error('No URI prefix defined for server ' +
+          serverHandle);
       }
       var endpoint = new KoastEndpoint(prefix, handle, template, options);
       if (endpoints[handle]) {
-        throw new Error('An endpoint with this handle was already defined: ' +
+        throw new Error(
+          'An endpoint with this handle was already defined: ' +
           handle);
       }
       endpoints[handle] = endpoint;
     };
+
+    service.init = function (initOptions) {
+      options = initOptions;
+    }
 
     return service;
   }

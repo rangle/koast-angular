@@ -18,5 +18,8 @@
   "homepage": "https://github.com/rangle/koast-angular",
   "dependencies": {
     "rangle-gulp": "0.0.7"
+  },
+  "devDependencies": {
+    "gulp-watch": "^1.1.0"
   }
 }

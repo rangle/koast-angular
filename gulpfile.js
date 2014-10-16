@@ -3,7 +3,7 @@
 var gulp = require('gulp');
 var rg = require('rangle-gulp');
 var exec = require('child_process').exec;
-
+var watch = require('gulp-watch');
 var karmaVendorFiles = [
   'bower_components/angular/angular.js',
   'bower_components/angular-mocks/angular-mocks.js',
@@ -47,12 +47,12 @@ gulp.task('beautify', rg.beautify({
   files: []
 }));
 
-
 gulp.task('concat', rg.concatAndUglify({
   files: 'src/**/*.js',
   name: 'koast',
   dist: 'dist/'
 }));
+
 
 gulp.task('dev', rg.nodemon({
   // workingDirectory: 'examples/basic-express/',
@@ -63,4 +63,3 @@ gulp.task('dev', rg.nodemon({
 gulp.task('test', ['karma']);
 
 gulp.task('default', ['lint', 'concat', 'karma']);
-
