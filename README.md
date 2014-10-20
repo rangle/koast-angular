@@ -4,3 +4,4 @@ services provided by this module should save you some work.
 
 This would normally be installed using bower. To use the git version, however,
 use "bower link".
+
