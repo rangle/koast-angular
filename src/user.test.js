@@ -106,6 +106,7 @@ describe('_koastOauth', function () {
       service.location = {
         replace: sinon.spy()
       };
+      service.localStorge = new localStorageMock();
       return service;
     });
   }));
@@ -115,7 +116,7 @@ describe('_koastOauth', function () {
   it('should initiate authentication', function () {
     inject(function (_koastOauth, $window) {
       var someProvider = 'facebook';
-      $window.localStorage = localStorageMock();
+
       _koastOauth.initiateAuthentication(someProvider);
       $window.location.replace.should.have.been.calledOnce;
       $window.location.replace.should.have
