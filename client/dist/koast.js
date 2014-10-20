@@ -451,16 +451,20 @@ angular.module('koast-persona', [])
 
 angular.module('koast-resource', ['koast-user'])
 
-.factory('_KoastServerHelper', ['_koastUser',
-  function (user) {
+.factory('_KoastServerHelper', ['_koastUser', '_koastTokenKeeper',
+  function (user, _koastTokenKeeper) {
     'use strict';
     var service = {};
+
     service.addAuthHeaders = function (headers) {
+      debugger;
       if (user.isSignedIn) {
         headers['koast-auth-token'] = user.meta.token;
         headers['koast-auth-token-timestamp'] = user.meta.timestamp;
         headers['koast-user'] = angular.toJson(user.data);
+
       }
+      headers['Authorization'] = 'Bearer ' + _koastTokenKeeper.loadToken();
     };
     return service;
   }
@@ -636,6 +640,7 @@ angular.module('koast-resource', ['koast-user'])
       }
 
       KoastServerHelper.addAuthHeaders(headers);
+
       return _koastHttp.get(endpoint.makeGetUrl(params), getConfig)
         .then(function (response) {
           return convertResultsToResources(response, options);
@@ -708,6 +713,7 @@ angular.module('koast-resource', ['koast-user'])
      *                                    of resources.
      */
     service.queryForResources = function (endpointHandle, query) {
+
       return get(endpointHandle, null, query);
     };
 
@@ -735,18 +741,16 @@ angular.module('koast-resource', ['koast-user'])
     return service;
   }
 ]);
-
 /* global angular */
 
 angular.module('koast-user', [
     'koast.logger',
-    'koast.http',
-    'ui.router'
+    'koast.http'
   ])
   // Abstracts out some OAuth-specific logic.
   .factory('_koastOauth', ['$window', '$location', '$log', '_koastLogger',
-    '$state',
-    function ($window, $location, $log, _koastLogger, $state) {
+
+    function ($window, $location, $log, _koastLogger) {
       'use strict';
       var NEXT_URL_KEY = 'Koast_Post_Auth_Url';
       var service = {};
@@ -1029,6 +1033,7 @@ angular.module('koast-user', [
       return koastHttp.get(url || '/auth/token/refresh').then(function (
         response) {
         if (response.token) {
+          user.meta.token = response.token;
           return response;
         } else {
           return initToken;

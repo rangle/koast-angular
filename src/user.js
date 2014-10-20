@@ -290,6 +290,7 @@ angular.module('koast-user', [
       return koastHttp.get(url || '/auth/token/refresh').then(function (
         response) {
         if (response.token) {
+          user.meta.token = response.token;
           return response;
         } else {
           return initToken;

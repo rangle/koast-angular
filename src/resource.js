@@ -2,16 +2,20 @@
 
 angular.module('koast-resource', ['koast-user'])
 
-.factory('_KoastServerHelper', ['_koastUser',
-  function (user) {
+.factory('_KoastServerHelper', ['_koastUser', '_koastTokenKeeper',
+  function (user, _koastTokenKeeper) {
     'use strict';
     var service = {};
+
     service.addAuthHeaders = function (headers) {
+      debugger;
       if (user.isSignedIn) {
         headers['koast-auth-token'] = user.meta.token;
         headers['koast-auth-token-timestamp'] = user.meta.timestamp;
         headers['koast-user'] = angular.toJson(user.data);
+
       }
+      headers['Authorization'] = 'Bearer ' + _koastTokenKeeper.loadToken();
     };
     return service;
   }
@@ -187,6 +191,7 @@ angular.module('koast-resource', ['koast-user'])
       }
 
       KoastServerHelper.addAuthHeaders(headers);
+
       return _koastHttp.get(endpoint.makeGetUrl(params), getConfig)
         .then(function (response) {
           return convertResultsToResources(response, options);
@@ -259,6 +264,7 @@ angular.module('koast-resource', ['koast-user'])
      *                                    of resources.
      */
     service.queryForResources = function (endpointHandle, query) {
+
       return get(endpointHandle, null, query);
     };
 
