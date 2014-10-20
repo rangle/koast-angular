@@ -1,9 +1,16 @@
 /* global angular */
 
-angular.module('koast', ['koast-user', 'koast-resource'])
+angular.module('koast', ['koast-user', 'koast-resource']).run(function () {
+  if (typeof _ === typeof undefined) {
+    throw new Error(
+      '_ is undefined. koast-angular requires underscore or lodash to be loaded'
+    );
+  }
+})
 
 // The public service for use by the developer.
-.factory('koast', ['_koastUser', '_koastResourceGetter', '$log', '_koastHttp',
+.factory('koast', ['_koastUser', '_koastResourceGetter', '$log',
+  '_koastHttp',
   function (koastUser, koastResourceGetter, $log, _koastHttp) {
     'use strict';
     var service = {};
@@ -24,6 +31,8 @@ angular.module('koast', ['koast-user', 'koast-resource'])
     });
 
     service.init = function (options) {
+
+
       $log.info('Initializing koast.');
       _koastHttp.setOptions(options);
       koastUser.init(options);

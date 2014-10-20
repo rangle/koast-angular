@@ -106,7 +106,7 @@ describe('_koastOauth', function () {
       service.location = {
         replace: sinon.spy()
       };
-      service.localStorge = new localStorageMock();
+      service.localStorage = new localStorageMock();
       return service;
     });
   }));
