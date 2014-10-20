@@ -50,7 +50,7 @@ gulp.task('beautify', rg.beautify({
 gulp.task('concat', rg.concatAndUglify({
   files: 'src/**/*.js',
   name: 'koast',
-  dist: 'dist/'
+  dest: 'dist/'
 }));
 
 
