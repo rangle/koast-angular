@@ -466,7 +466,7 @@ angular.module('koast-resource', ['koast-user'])
     var service = {};
 
     service.addAuthHeaders = function (headers) {
-      debugger;
+      
       if (user.isSignedIn) {
         headers['koast-auth-token'] = user.meta.token;
         headers['koast-auth-token-timestamp'] = user.meta.timestamp;
@@ -750,6 +750,7 @@ angular.module('koast-resource', ['koast-user'])
     return service;
   }
 ]);
+
 /* global angular */
 
 angular.module('koast-user', [
