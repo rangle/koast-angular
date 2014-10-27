@@ -1,7 +1,12 @@
 /* global angular */
 'use strict';
 // Logging with a few extra bells and whistles.
-angular.module('koast.logger', [])
+//
+
+/**
+ * @module koast-logger
+ */
+angular.module('koast-logger', [])
   .factory('_koastLogger', [
     function () {
 
