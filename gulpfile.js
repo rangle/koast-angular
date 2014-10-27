@@ -10,7 +10,7 @@ var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 var concat = require('gulp-concat-util');
 var ngAnnotate = require('gulp-ng-annotate');
-var Dgeni = require('dgeni');
+
 
 var karmaVendorFiles = [
   'bower_components/angular/angular.js',
@@ -100,10 +100,8 @@ gulp.task('concat', ['build-peer', 'beautify'], function () {
     .pipe(gulp.dest(distFolder));
 
 });
-gulp.task('dgeni', function () {
-  var dgeni = new Dgeni([require('./docs/docs')]);
-  return dgeni.generate();
-});
+
+
 gulp.task('dev', rg.nodemon({
   // workingDirectory: 'examples/basic-express/',
   script: 'examples/basic-express/server/app.js',
