@@ -66,7 +66,7 @@ gulp.task('build-peer', function () {
 // todo-make part of rangle gulp>
 gulp.task('concat', ['build-peer', 'beautify'], function () {
   var options = {
-    files: './src/**/*.js',
+    files: ['./src/**/*.js', './packed/*.js'],
     name: 'koast',
     dest: 'dist/'
   };

@@ -6,7 +6,10 @@
 /**
  * @module koast-logger
  */
-angular.module('koast-logger', [])
+
+var nebular = require('nebular');
+
+nebular.module('koast-logger', [])
   .factory('_koastLogger', [
     function () {
 

@@ -8,7 +8,9 @@
  * more stuff
  * @module koast-http/_koastHttp
  */
-angular.module('koast-http', [])
+var nebular = require('nebular');
+
+nebular.module('koast-http', [])
   .factory('_koastHttp', ['$http', '$q', '_koastLogger', '_koastTokenKeeper',
     function ($http, $q, _koastLogger, _koastTokenKeeper) {
       var log = _koastLogger.makeLogger('koast.http');

@@ -3,7 +3,8 @@
  * @module koast-http/_koastTokenKeeper
  */
 'use strict';
-angular.module('koast-http')
+var nebular = require('nebular');
+nebular.module('koast-http')
   .factory('_koastTokenKeeper', ['$log', '$window',
     function ($log, $window) {
       var TOKEN_KEY = 'KoastToken';

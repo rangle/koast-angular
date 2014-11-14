@@ -1,6 +1,6 @@
 (function(window, document, undefined) {
 'use strict';
-// koast - 0.1.1
+// koast - 0.1.3
 /* global angular */
 
 /**
@@ -67,7 +67,9 @@ var service = {};
  * more stuff
  * @module koast-http/_koastHttp
  */
-angular.module('koast-http', [])
+var nebular = require('nebular');
+
+nebular.module('koast-http', [])
   .factory('_koastHttp', ['$http', '$q', '_koastLogger', '_koastTokenKeeper',
     function ($http, $q, _koastLogger, _koastTokenKeeper) {
       var log = _koastLogger.makeLogger('koast.http');
@@ -180,7 +182,8 @@ angular.module('koast-http', [])
 /**
  * @module koast-http/_koastTokenKeeper
  */
-angular.module('koast-http')
+var nebular = require('nebular');
+nebular.module('koast-http')
   .factory('_koastTokenKeeper', ['$log', '$window',
     function ($log, $window) {
       var TOKEN_KEY = 'KoastToken';
@@ -207,7 +210,10 @@ angular.module('koast-http')
 /**
  * @module koast-logger
  */
-angular.module('koast-logger', [])
+
+var nebular = require('nebular');
+
+nebular.module('koast-logger', [])
   .factory('_koastLogger', [
     function () {
 
@@ -1026,5 +1032,248 @@ var COMPATABILITY_URL =
 
 
   });
+
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+var nebular = __webpack_require__(2);
+	var loggerModule = __webpack_require__(1);
+
+	// var injections = require('./injections/injections');
+
+	// function makeAngularModule(name) {
+	//   return angular.module(name, ['koast-setup']);
+	// };
+
+	// function makeService(module) {
+	//   return function (_koastSetup) {
+	//     return module.getService();
+	//   };
+	// };
+
+	angular.module('koast-setup', [])
+	  .factory('_koastSetup', function($q, $http) {
+	    nebular.setService('q', $q);
+	    nebular.setService('http', $http);
+	    return nebular.instantiateService('_koastLogger');
+	  });
+
+	makeAngularModule('koast-logger')
+	  .factory('_koastLogger', function() {
+	    return nebular.getService('_koastLogger');
+	  });
+
+	// makeAngularModule('koast-http')
+	//   .factory('_koastHttp', makeService(require('./http/http')))
+	//   .factory('_koastTokenKeeper', makeService(require('./http/token-keeper')));
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* global angular */
+// Logging with a few extra bells and whistles.
+	//
+
+	/**
+	 * @module koast-logger
+	 */
+
+	var nebular = __webpack_require__(2);
+
+	nebular.module('koast-logger', [])
+	  .factory('_koastLogger', [
+	    function () {
+
+	      var service = {};
+	      service.levels = {
+	        debug: 1,
+	        verbose: 2,
+	        info: 3,
+	        warn: 4,
+	        error: 5
+	      };
+	      var logLevel = 3;
+	      service.colors = {};
+	      service.setLogLevel = function (newLevel) {
+	        logLevel = newLevel;
+	      };
+
+	      function log(options, groupOptions, values) {
+	        options = arguments[0] || {};
+
+	        if (options.level && options.level < logLevel) {
+	          return;
+	        }
+
+	        var color = options.color || 'black';
+	        var args = [];
+	        var noMoreColors = false;
+	        values = Array.prototype.slice.call(values, 0);
+	        var colored = [];
+	        if (typeof values[0] === 'string') {
+	          colored.push('%c' + values.shift());
+	          args.push('color:' + color + ';');
+	        }
+
+	        if (groupOptions.groupName) {
+	          colored.unshift('%c[' + groupOptions.groupName + ']');
+	          args.unshift('color:gray;');
+	        }
+	        if (options.symbol) {
+	          colored.unshift('%c' + options.symbol);
+	          args.unshift('color:' + color +
+	            ';font-weight:bold;font-size:150%;');
+	        }
+	        args.unshift(colored.join(' '));
+	        args = args.concat(values);
+	        Function.prototype.apply.call(console.log, console, args);
+	      }
+
+	      function makeLoggerFunction(options) {
+	        options.level = service.levels[options.name];
+	        return function (groupOptions, args) {
+	          log(options, groupOptions, args);
+	        };
+	      }
+
+	      var logFunctions = {
+	        debug: makeLoggerFunction({
+	          name: 'debug',
+	          color: 'gray',
+	          symbol: '✍'
+	        }),
+	        verbose: makeLoggerFunction({
+	          name: 'verbose',
+	          color: 'cyan',
+	          symbol: '☞'
+	        }),
+	        info: makeLoggerFunction({
+	          name: 'info',
+	          color: '#0074D9',
+	          symbol: '☞'
+	        }),
+	        warn: makeLoggerFunction({
+	          name: 'warn',
+	          color: 'orange',
+	          symbol: '⚐'
+	        }),
+	        error: makeLoggerFunction({
+	          name: 'error',
+	          color: 'red',
+	          symbol: '⚑'
+	        }),
+	      };
+
+	      var methodNames = ['debug', 'verbose', 'info', 'warn', 'error'];
+
+	      service.makeLogger = function (options) {
+	        var logger = {};
+	        if (typeof options === 'string') {
+	          options = {
+	            groupName: options
+	          };
+	        }
+	        logger.options = options;
+	        methodNames.forEach(function (methodName) {
+	          logger[methodName] = function () {
+	            var args = arguments;
+	            return logFunctions[methodName](logger.options, args);
+	          };
+	        });
+
+	        return logger;
+	      };
+
+	      var defaultLogger = service.makeLogger({});
+
+	      methodNames.forEach(function (methodName) {
+	        service[methodName] = defaultLogger[methodName];
+	      });
+
+	      return service;
+	    }
+	  ]);
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	var serviceFactoryFunctions = {};
+	var services = {};
+
+	exports.setService = function(key, value) {
+	  console.log('setting ', key);
+	  services[key] = value;
+	};
+
+	exports.instantiateService = function(serviceName) {
+	  var factoryFunction = serviceFactoryFunctions[serviceName];
+	  services[serviceName] = factoryFunction();
+	};
+
+	exports.getService = function(serviceName) {
+	  console.log(serviceName);
+	  return services[serviceName];
+	};
+
+	var module = {
+	  factory: function (serviceName, serviceFactoryArray) {
+	    var serviceFactoryFunction = serviceFactoryArray.slice(-1)[0];
+	    serviceFactoryFunctions[serviceName] = serviceFactoryFunction;
+	  }
+	};
+
+	exports.module = function() {
+	  return module;
+	};
+
+/***/ }
+/******/ ])
 
 })(window, document);
