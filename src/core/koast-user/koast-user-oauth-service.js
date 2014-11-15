@@ -1,7 +1,10 @@
+'use strict';
+var nebular = require('nebular');
+
 /**
  * @module koast-user/_koastOAuth
  */
-angular.module('koast-user')
+nebular.module('koast-user')
   .factory('_koastOauth', ['$window', '$location', '$log', '_koastLogger',
 
     function ($window, $location, $log, _koastLogger) {

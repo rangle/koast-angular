@@ -1,4 +1,5 @@
 'use strict';
-angular.module('koast').constant('peerDependencies', {
+var nebular = require('nebular');
+nebular.module('koast').constant('peerDependencies', {
 	"koast": ">=0.4.5"
 });

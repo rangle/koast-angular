@@ -1,9 +1,9 @@
-/*global angular,_*/
+var nebular = require('nebular');
 
 /**
  * @module koast-resource/_KoastEndpoint
  */
-angular.module('koast-resource')
+nebular.module('koast-resource')
   .factory('_KoastEndpoint', [
 
     function () {

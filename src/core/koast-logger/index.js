@@ -1,0 +1,1 @@
+require('./koast-logger-service');

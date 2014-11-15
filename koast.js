@@ -1,13 +1,11 @@
 'use strict';
 
+require('./src/koast');
 var nebular = require('nebular');
-var loggerModule = require('./src/core/koast-logger/koast-logger-service');
 
-// var injections = require('./injections/injections');
-
-// function makeAngularModule(name) {
-//   return angular.module(name, ['koast-setup']);
-// };
+function makeAngularModule(name) {
+  return angular.module(name, ['koast-setup']);
+};
 
 // function makeService(module) {
 //   return function (_koastSetup) {
@@ -16,15 +14,21 @@ var loggerModule = require('./src/core/koast-logger/koast-logger-service');
 // };
 
 angular.module('koast-setup', [])
-  .factory('_koastSetup', function($q, $http) {
-    nebular.setService('q', $q);
-    nebular.setService('http', $http);
-    return nebular.instantiateService('_koastLogger');
+  .factory('_koastSetup', function($q, $http, $log, $window, $location, $timeout) {
+    nebular.setService('$q', $q);
+    nebular.setService('$http', $http);
+    nebular.setService('$log', $log);
+    nebular.setService('$window', $window);
+    nebular.setService('$location', $location);
+    nebular.setService('$timeout', $timeout);
+    nebular.setService('_', require('lodash'));
+    nebular.setAngularUtils(angular);
   });
 
-makeAngularModule('koast-logger')
-  .factory('_koastLogger', function() {
-    return nebular.getService('_koastLogger');
+makeAngularModule('koast')
+  .factory('koast', function(_koastSetup) {
+    nebular.instantiateService('koast');
+    return nebular.getService('koast');
   });
 
 // makeAngularModule('koast-http')

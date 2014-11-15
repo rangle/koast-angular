@@ -1,13 +1,14 @@
-/* global angular */
+'use strict';
+var nebular = require('nebular');
 
 /**
  * Check the compatability of the current version of koast-angular with the server version of koast
  * @module koast/versionCheck
  */
-angular.module('koast-versionCheck', ['koast-http', 'koast-logger']).factory(
-  'versionCheck',
-  function (
-    _koastHttp,
+nebular.module('koast-versionCheck', ['koast-http', 'koast-logger'])
+
+.factory('versionCheck', ['_koastHttp', 'peerDependencies', '$log',
+  function(_koastHttp,
     peerDependencies, $log) {
     'use strict';
 
@@ -43,6 +44,5 @@ angular.module('koast-versionCheck', ['koast-http', 'koast-logger']).factory(
     return {
       isCompatible: isCompatible
     };
-
-
-  });
+  }
+]);
