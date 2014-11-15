@@ -1,9 +1,10 @@
-/* global angular */
+'use strict';
+var nebular = require('nebular');
 
 /**
  * @module koast-user
  */
-angular.module('koast-user', [
+nebular.module('koast-user', [
   'koast-logger',
   'koast-http'
 ]);

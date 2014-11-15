@@ -27,7 +27,9 @@
     "semver": "^4.1.0"
   },
   "devDependencies": {
-    "gulp-watch": "^1.1.0"
+    "gulp-watch": "^1.1.0",
+    "lodash": "^2.4.1",
+    "nebular": "0.0.1"
   },
   "peerDependencies": {
     "koast": ">=0.4.5"

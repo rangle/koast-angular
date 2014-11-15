@@ -1,7 +1,9 @@
+var nebular = require('nebular');
+
 /**
  * @alias module:koast
  */
-angular.module('koast')
+nebular.module('koast')
   .factory('koast', ['_koastUser', '_koastResourceGetter', '$log',
     '_koastHttp', 'versionCheck',
     function (koastUser, koastResourceGetter, $log, _koastHttp, versionCheck) {
@@ -25,7 +27,6 @@ angular.module('koast')
 
 
       service.init = function (options) {
-
 
         $log.info('Initializing koast.');
         _koastHttp.setOptions(options);

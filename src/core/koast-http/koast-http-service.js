@@ -1,6 +1,5 @@
-/* global angular,_ */
 'use strict';
-
+var nebular = require('nebular');
 
 // Abstracts server interaction.
 
@@ -8,9 +7,9 @@
  * more stuff
  * @module koast-http/_koastHttp
  */
-angular.module('koast-http', [])
-  .factory('_koastHttp', ['$http', '$q', '_koastLogger', '_koastTokenKeeper',
-    function ($http, $q, _koastLogger, _koastTokenKeeper) {
+nebular.module('koast-http', [])
+  .factory('_koastHttp', ['$http', '$q', '_koastLogger', '_koastTokenKeeper', '_',
+    function ($http, $q, _koastLogger, _koastTokenKeeper, _) {
       var log = _koastLogger.makeLogger('koast.http');
       var service = {};
       var options = {

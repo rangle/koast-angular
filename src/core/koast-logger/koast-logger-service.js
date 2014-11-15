@@ -1,12 +1,13 @@
-/* global angular */
 'use strict';
+var nebular = require('nebular');
+
 // Logging with a few extra bells and whistles.
 //
 
 /**
  * @module koast-logger
  */
-angular.module('koast-logger', [])
+nebular.module('koast-logger', [])
   .factory('_koastLogger', [
     function () {
 

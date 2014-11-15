@@ -1,7 +1,7 @@
-/* global angular, _ */
+var nebular = require('nebular');
 
 /**
  * @module koast-resource
  */
 
-angular.module('koast-resource', ['koast-user']);
+nebular.module('koast-resource', ['koast-user']);

@@ -1,9 +1,9 @@
-/*global angular,_*/
+var nebular = require('nebular');
 
 /**
  * @module koast-resource/_KoastServerHelper
  */
-angular.module('koast-resource')
+nebular.module('koast-resource')
   .factory('_KoastServerHelper', ['_koastUser', '_koastTokenKeeper',
     function (user, _koastTokenKeeper) {
       'use strict';

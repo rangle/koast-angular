@@ -1,9 +1,10 @@
-/*global angular,_*/
+var nebular = require('nebular');
+var angular = nebular.getAngularUtils();
 
 /**
  * @module koast-resource/_koastResourceGetter
  */
-angular.module('koast-resource')
+nebular.module('koast-resource')
   .factory('_koastResourceGetter', ['_KoastResource', '_KoastServerHelper',
     '_KoastEndpoint', '$http', '$q', '$log', '_koastHttp',
     function (KoastResource, KoastServerHelper, KoastEndpoint, $http, $q,
