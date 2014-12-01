@@ -21,16 +21,11 @@ var karmaVendorFiles = [
 ];
 
 var karmaFiles = [
+  'src/koast.js',
   'src/**/*.js'
 ];
 
 rg.setLogLevel('info');
-
-gulp.task('karma', rg.karma({
-  files: karmaFiles,
-  vendor: karmaVendorFiles,
-  karmaConf: 'testing/karma-ci.conf.js'
-}));
 
 gulp.task('karma-ci', rg.karma({
   files: karmaFiles,
@@ -108,6 +103,6 @@ gulp.task('dev', rg.nodemon({
   onChange: ['lint'] // or ['lint', 'karma']
 }));
 
-gulp.task('test', ['karma']);
+gulp.task('test', ['karma-ci']);
 
-gulp.task('default', ['lint', 'concat', 'karma']);
+gulp.task('default', ['lint', 'concat', 'test']);

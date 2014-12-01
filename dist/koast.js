@@ -1,6 +1,6 @@
 (function(window, document, undefined) {
 'use strict';
-// koast - 0.1.1
+// koast - 0.1.3
 /* global angular */
 
 /**

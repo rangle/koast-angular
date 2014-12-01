@@ -8,7 +8,7 @@
  * more stuff
  * @module koast-http/_koastHttp
  */
-angular.module('koast-http', [])
+angular.module('koast-http', ['koast-logger'])
   .factory('_koastHttp', ['$http', '$q', '_koastLogger', '_koastTokenKeeper',
     function ($http, $q, _koastLogger, _koastTokenKeeper) {
       var log = _koastLogger.makeLogger('koast.http');
