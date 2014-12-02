@@ -4,7 +4,7 @@
 
 'use strict';
 
-describe('koast',function(){
+describe('koast',function() {
   beforeEach(module('koast'));
 
   beforeEach(module(function ($provide) {
@@ -12,8 +12,8 @@ describe('koast',function(){
   }));
 
   var koast;
-  beforeEach(function(){
-    inject(function($injector){
+  beforeEach(function() {
+    inject(function($injector) {
       koast = $injector.get('koast');
     });
   });
@@ -24,6 +24,17 @@ describe('koast',function(){
     expect(koast.user).to.be.an('object');
   });
 
-  //TODO: write tests for init()
+  it('should have methods', function() {
+    expect(koast.setApiUriPrefix).to.be.a('function');
+    expect(koast.getResource).to.be.a('function');
+    expect(koast.createResource).to.be.a('function');
+    expect(koast.queryForResources).to.be.a('function');
+    expect(koast.addEndpoint).to.be.a('function');
+  });
+
+//TODO: write tests for init()
+
+
+
 
 });
