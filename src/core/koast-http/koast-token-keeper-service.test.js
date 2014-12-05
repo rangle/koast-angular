@@ -21,6 +21,7 @@ describe('_koastTokenKeeper',function(){
   it('should exist', function() {
     expect(_koastTokenKeeper).to.be.an('object');
     expect(_koastTokenKeeper.saveToken).to.be.a('function');
+    expect(_koastTokenKeeper.setTokenKey).to.be.a('function');
     expect(_koastTokenKeeper.loadToken).to.be.a('function');
     expect(_koastTokenKeeper.clear).to.be.a('function');
   });
