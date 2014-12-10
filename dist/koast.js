@@ -67,7 +67,7 @@ var service = {};
  * more stuff
  * @module koast-http/_koastHttp
  */
-angular.module('koast-http', [])
+angular.module('koast-http', ['koast-logger'])
   .factory('_koastHttp', ['$http', '$q', '_koastLogger', '_koastTokenKeeper',
     function ($http, $q, _koastLogger, _koastTokenKeeper) {
       var log = _koastLogger.makeLogger('koast.http');
@@ -183,17 +183,22 @@ angular.module('koast-http', [])
 angular.module('koast-http')
   .factory('_koastTokenKeeper', ['$log', '$window',
     function ($log, $window) {
-      var TOKEN_KEY = 'KoastToken';
+      var _tokenKey = 'KoastToken';
       var service = {};
+      //set where to keep the token
+      //needed by koast admin app to prevent it from overwriting the koast token
+      service.setTokenKey = function(newKey) {
+        _tokenKey = newKey;
+      };
       service.saveToken = function (params) {
         var tokenValue = params.token || params;
-        $window.localStorage.setItem(TOKEN_KEY, tokenValue);
+        $window.localStorage.setItem(_tokenKey, tokenValue);
       };
       service.loadToken = function () {
-        return $window.localStorage.getItem(TOKEN_KEY);
+        return $window.localStorage.getItem(_tokenKey);
       };
       service.clear = function () {
-        return $window.localStorage.removeItem(TOKEN_KEY);
+        return $window.localStorage.removeItem(_tokenKey);
       };
 
       return service;
@@ -486,16 +491,10 @@ var service = {};
 
         KoastServerHelper.addAuthHeaders(headers);
 
-        $http.post(endpoint.makePostUrl(), data, {
-            headers: headers
-          })
-          .success(function (result) {
-            deferred.resolve(result);
-          })
-          .error(function (error) {
-            deferred.reject(error);
-          });
-        return deferred.promise;
+        return _koastHttp.post(endpoint.makePostUrl(), data, {
+          headers: headers
+        });
+
       }
 
 
@@ -549,8 +548,8 @@ var service = {};
  * @module koast-resource/_KoastResource
  */
 angular.module('koast-resource')
-  .factory('_KoastResource', ['_KoastServerHelper', '$q', '$http', '$log',
-    function (KoastServerHelper, $q, $http, $log) {
+  .factory('_KoastResource', ['_KoastServerHelper', '$q', '_koastHttp', '$log',
+    function (KoastServerHelper, $q, _koastHttp, $log) {
 // A client side representation of a saveable RESTful resource instance.
       function Resource(endpoint, result, options) {
         var resource = this;
@@ -591,7 +590,7 @@ angular.module('koast-resource')
         var url = this._endpoint.makeGetUrl(this);
         var headers = {};
         KoastServerHelper.addAuthHeaders(headers);
-        return $http.put(url, this, {
+        return _koastHttp.put(url, this, {
           headers: headers
         });
       };
@@ -603,7 +602,7 @@ angular.module('koast-resource')
         $log.debug('delete url:', url);
         var headers = {};
         KoastServerHelper.addAuthHeaders(headers);
-        return $http.delete(url, {
+        return _koastHttp.delete(url, {
           headers: headers
         });
       };

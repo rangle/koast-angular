@@ -28,6 +28,7 @@
     "semver": "^4.1.0"
   },
   "devDependencies": {
+    "gulp-js-beautify": "0.0.2",
     "gulp-watch": "^1.1.0"
   },
   "peerDependencies": {

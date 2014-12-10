@@ -4,8 +4,8 @@
  * @module koast-resource/_KoastResource
  */
 angular.module('koast-resource')
-  .factory('_KoastResource', ['_KoastServerHelper', '$q', '$http', '$log',
-    function (KoastServerHelper, $q, $http, $log) {
+  .factory('_KoastResource', ['_KoastServerHelper', '$q', '_koastHttp', '$log',
+    function (KoastServerHelper, $q, _koastHttp, $log) {
       'use strict';
       // A client side representation of a saveable RESTful resource instance.
       function Resource(endpoint, result, options) {
@@ -47,7 +47,7 @@ angular.module('koast-resource')
         var url = this._endpoint.makeGetUrl(this);
         var headers = {};
         KoastServerHelper.addAuthHeaders(headers);
-        return $http.put(url, this, {
+        return _koastHttp.put(url, this, {
           headers: headers
         });
       };
@@ -59,7 +59,7 @@ angular.module('koast-resource')
         $log.debug('delete url:', url);
         var headers = {};
         KoastServerHelper.addAuthHeaders(headers);
-        return $http.delete(url, {
+        return _koastHttp.delete(url, {
           headers: headers
         });
       };

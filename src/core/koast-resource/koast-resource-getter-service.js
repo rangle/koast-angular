@@ -101,16 +101,10 @@ angular.module('koast-resource')
 
         KoastServerHelper.addAuthHeaders(headers);
 
-        $http.post(endpoint.makePostUrl(), data, {
-            headers: headers
-          })
-          .success(function (result) {
-            deferred.resolve(result);
-          })
-          .error(function (error) {
-            deferred.reject(error);
-          });
-        return deferred.promise;
+        return _koastHttp.post(endpoint.makePostUrl(), data, {
+          headers: headers
+        });
+
       }
 
 
