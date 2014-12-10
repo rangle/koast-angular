@@ -611,6 +611,16 @@ angular.module('koast-resource')
     }
   ])
 
+/* global angular, _ */
+
+/**
+ * @module koast-resource
+ */
+
+angular.module('koast-resource', ['koast-user',
+  'koast-resource.endPoint'
+]);
+
 /*global angular,_*/
 
 /**
