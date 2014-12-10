@@ -1,6 +1,6 @@
 (function(window, document, undefined) {
 'use strict';
-// koast - 0.1.3
+// koast - 0.1.5
 /* global angular */
 
 /**
@@ -610,16 +610,6 @@ angular.module('koast-resource')
       return Resource;
     }
   ])
-
-/* global angular, _ */
-
-/**
- * @module koast-resource
- */
-
-angular.module('koast-resource', ['koast-user',
-  'koast-resource.endPoint'
-]);
 
 /*global angular,_*/
 
