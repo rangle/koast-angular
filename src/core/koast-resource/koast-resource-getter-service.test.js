@@ -20,6 +20,7 @@ describe('_koastResourceGetter',function(){
 
   it('should exist', function() {
     expect(_koastResourceGetter).to.be.an('object');
+    expect(_koastResourceGetter.setApiUriPrefix).to.be.a('function');
     expect(_koastResourceGetter.getResource).to.be.a('function');
     expect(_koastResourceGetter.createResource).to.be.a('function');
     expect(_koastResourceGetter.queryForResources).to.be.a('function');

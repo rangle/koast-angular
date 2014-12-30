@@ -7,8 +7,8 @@
  * @module koast-logger
  */
 angular.module('koast-logger', [])
-  .factory('_koastLogger', [
-    function () {
+  .factory('_koastLogger', ['$window',
+    function ($window) {
 
       var service = {};
       service.levels = {
@@ -52,7 +52,7 @@ angular.module('koast-logger', [])
         }
         args.unshift(colored.join(' '));
         args = args.concat(values);
-        Function.prototype.apply.call(console.log, console, args);
+        Function.prototype.apply.call($window.console.log, $window.console, args);
       }
 
       function makeLoggerFunction(options) {
