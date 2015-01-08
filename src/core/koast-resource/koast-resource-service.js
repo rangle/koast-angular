@@ -66,4 +66,4 @@ angular.module('koast-resource')
 
       return Resource;
     }
-  ])
+  ]);

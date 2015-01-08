@@ -17,6 +17,7 @@ angular.module('koast-resource')
           headers['koast-user'] = angular.toJson(user.data);
 
         }
+        /*jshint -W069 */
         headers['Authorization'] = 'Bearer ' + _koastTokenKeeper.loadToken();
       };
       return service;

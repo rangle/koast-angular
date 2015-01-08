@@ -242,7 +242,7 @@ angular.module('koast-user')
           }
         });
 
-      }
+      };
       user.checkForToken = function () {
         var queryToken = $location.search().redirectToken;
         if (queryToken) {

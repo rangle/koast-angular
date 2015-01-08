@@ -25,6 +25,7 @@ describe('_KoastEndpoint',function(){
     handle = ':_id';
     template = '/userdata';
     options = {useEnvelope: true};
+    /*jshint -W055 */
     endpoint = new _KoastEndpoint(prefix,handle,template,options);
   });
 
