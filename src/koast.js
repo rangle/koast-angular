@@ -1,5 +1,5 @@
 /* global angular */
-
+'use strict';
 /**
  *
  * @module koast

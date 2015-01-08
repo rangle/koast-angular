@@ -72,7 +72,7 @@ angular.module('koast-http', ['koast-logger'])
         //   error = checkErrors(error);
         //   throw error.data? error.data: error;
         // });
-      };
+      }
 
       service.post = function (url, data, inputOptions) {
         inputOptions = _.cloneDeep(inputOptions) || options;
