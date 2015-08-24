@@ -13,10 +13,10 @@ var ngAnnotate = require('gulp-ng-annotate');
 
 
 var karmaVendorFiles = [
-  'bower_components/angular/angular.js',
-  'bower_components/angular-mocks/angular-mocks.js',
-  'bower_components/sinon-chai/lib/sinon-chai.js',
-  'bower_components/lodash/dist/lodash.js',
+  'node_modules/angular/angular.js',
+  'node_modules/angular-mocks/angular-mocks.js',
+  'node_modules/sinon-chai/lib/sinon-chai.js',
+  'node_modules/lodash/index.js',
   'testing/lib/*.js'
 ];
 
