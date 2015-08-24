@@ -51,15 +51,15 @@ gulp.task('beautify', rg.beautify({
   files: []
 }));
 
-gulp.task('build-peer', function () {
-  var peer = require('./package.json').peerDependencies;
+gulp.task('build-koast', function () {
+  var peer = require('./package.json').koastDependencies;
   return gulp.src(['./template/koast-peer-dependencies-const.js'])
     .pipe(replace(/\{\}/, JSON.stringify(peer, null, '\t')))
     .pipe(gulp.dest('src/core/koast'));
 });
 
 // todo-make part of rangle gulp>
-gulp.task('concat', ['build-peer', 'beautify'], function () {
+gulp.task('concat', ['build-koast', 'beautify'], function () {
   var options = {
     files: './src/**/*.js',
     name: 'koast',
