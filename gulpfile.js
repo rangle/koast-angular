@@ -13,10 +13,10 @@ var ngAnnotate = require('gulp-ng-annotate');
 
 
 var karmaVendorFiles = [
-  'bower_components/angular/angular.js',
-  'bower_components/angular-mocks/angular-mocks.js',
-  'bower_components/sinon-chai/lib/sinon-chai.js',
-  'bower_components/lodash/dist/lodash.js',
+  'node_modules/angular/angular.js',
+  'node_modules/angular-mocks/angular-mocks.js',
+  'node_modules/sinon-chai/lib/sinon-chai.js',
+  'node_modules/lodash/index.js',
   'testing/lib/*.js'
 ];
 
@@ -51,15 +51,15 @@ gulp.task('beautify', rg.beautify({
   files: []
 }));
 
-gulp.task('build-peer', function () {
-  var peer = require('./package.json').peerDependencies;
+gulp.task('build-koast', function () {
+  var peer = require('./package.json').koastDependencies;
   return gulp.src(['./template/koast-peer-dependencies-const.js'])
     .pipe(replace(/\{\}/, JSON.stringify(peer, null, '\t')))
     .pipe(gulp.dest('src/core/koast'));
 });
 
 // todo-make part of rangle gulp>
-gulp.task('concat', ['build-peer', 'beautify'], function () {
+gulp.task('concat', ['build-koast', 'beautify'], function () {
   var options = {
     files: './src/**/*.js',
     name: 'koast',
